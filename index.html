@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataVibe - Interactive Data Analysis Learning</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        },
+                        accent: {
+                            400: '#38bdf8',
+                            500: '#06b6d4',
+                            600: '#0891b2',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+        .heading-font {
+            font-family: 'Outfit', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-2px);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.5);
+            border-radius: 9999px;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.4; filter: drop-shadow(0 0 15px rgba(99, 102, 241, 0.6)); }
+            50% { opacity: 0.8; filter: drop-shadow(0 0 25px rgba(56, 189, 248, 0.8)); }
+        }
+        .animate-pulse-glow {
+            animation: pulseGlow 3s infinite;
+        }
+    </style>
+</head>
+<body class="custom-scrollbar flex flex-col min-h-screen selection:bg-brand-500 selection:text-white">
+
+    <!-- HEADER / NAVIGATION BAR -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-slate-700/50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo & Developer Branding -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('tujuan')">
+                    <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-brand-600 to-accent-400 flex items-center justify-center shadow-lg shadow-brand-500/30">
+                        <i class="fa-solid fa-chart-pie text-xl text-white"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="heading-font font-extrabold text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-200 to-accent-400">
+                                DataVibe
+                            </span>
+                            <span class="px-2 py-0.5 text-[10px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-full">
+                                Phase D
+                            </span>
+                        </div>
+                        <p class="text-xs text-indigo-300/80 font-medium tracking-wide">
+                            Developed by <span class="text-accent-400 font-semibold">Christopher Michael Lauw, M.Kom</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs (Desktop) -->
+                <nav class="hidden lg:flex items-center gap-1 bg-slate-900/60 p-1.5 rounded-2xl border border-slate-800">
+                    <button onclick="switchTab('tujuan')" id="nav-tujuan" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 text-indigo-300 hover:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-bullseye text-brand-500"></i> Tujuan
+                    </button>
+                    <button onclick="switchTab('materi')" id="nav-materi" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 text-indigo-300 hover:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-book-open text-brand-500"></i> Materi
+                    </button>
+                    <button onclick="switchTab('games')" id="nav-games" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 text-indigo-300 hover:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-gamepad text-brand-500"></i> Game Mission
+                    </button>
+                    <button onclick="switchTab('lkpd')" id="nav-lkpd" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 text-indigo-300 hover:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-file-pen text-brand-500"></i> LKPD
+                    </button>
+                    <button onclick="switchTab('refleksi')" id="nav-refleksi" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 text-indigo-300 hover:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-brain text-brand-500"></i> Refleksi
+                    </button>
+                    <button onclick="switchTab('sertifikat')" id="nav-sertifikat" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 text-indigo-300 hover:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-certificate text-brand-500"></i> Sertifikat
+                    </button>
+                </nav>
+
+                <!-- Audio Toggle & Mobile Menu Button -->
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleAudio()" id="audioBtn" title="Toggle Sound FX" class="w-10 h-10 rounded-xl bg-slate-800/80 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-700 transition">
+                        <i id="audioIcon" class="fa-solid fa-volume-high text-brand-400"></i>
+                    </button>
+
+                    <!-- Mobile Menu Button -->
+                    <button onclick="toggleMobileMenu()" class="lg:hidden w-10 h-10 rounded-xl bg-slate-800/80 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer Menu -->
+        <div id="mobileMenu" class="hidden lg:hidden border-t border-slate-800 bg-slate-900/95 px-4 py-4 space-y-2">
+            <button onclick="switchTab('tujuan'); toggleMobileMenu()" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-800 flex items-center gap-3">
+                <i class="fa-solid fa-bullseye text-brand-400 w-5"></i> Tujuan Pembelajaran
+            </button>
+            <button onclick="switchTab('materi'); toggleMobileMenu()" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-800 flex items-center gap-3">
+                <i class="fa-solid fa-book-open text-brand-400 w-5"></i> Materi Lengkap
+            </button>
+            <button onclick="switchTab('games'); toggleMobileMenu()" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-800 flex items-center gap-3">
+                <i class="fa-solid fa-gamepad text-brand-400 w-5"></i> Game Mission (5 Level)
+            </button>
+            <button onclick="switchTab('lkpd'); toggleMobileMenu()" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-800 flex items-center gap-3">
+                <i class="fa-solid fa-file-pen text-brand-400 w-5"></i> LKPD Interaktif
+            </button>
+            <button onclick="switchTab('refleksi'); toggleMobileMenu()" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-800 flex items-center gap-3">
+                <i class="fa-solid fa-brain text-brand-400 w-5"></i> Refleksi Diri
+            </button>
+            <button onclick="switchTab('sertifikat'); toggleMobileMenu()" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium hover:bg-slate-800 flex items-center gap-3">
+                <i class="fa-solid fa-certificate text-brand-400 w-5"></i> Sertifikat Kelulusan
+            </button>
+        </div>
+    </header>
+
+    <!-- USER IDENTIFICATION & QUICK SCORE BAR -->
+    <div class="bg-indigo-950/40 border-b border-indigo-900/30 py-2.5 px-4">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4 text-xs sm:text-sm">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-user-graduate text-accent-400"></i>
+                <span class="text-slate-400">Siswa:</span>
+                <input type="text" id="globalStudentName" value="Peserta Didik Informatika" onchange="updateStudentName(this.value)" class="bg-slate-900/80 border border-slate-700 rounded-lg px-2.5 py-1 text-white font-semibold focus:outline-none focus:border-brand-500 w-44 sm:w-60" placeholder="Masukkan nama Anda...">
+            </div>
+            <div class="flex items-center gap-6 text-slate-300">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-gamepad text-emerald-400"></i>
+                    <span>Skor Game: <strong id="globalGameScore" class="text-emerald-400 font-bold">0</strong>/100</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-check text-cyan-400"></i>
+                    <span>Skor LKPD: <strong id="globalLkpdScore" class="text-cyan-400 font-bold">0</strong>/100</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT CONTAINERS -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- TAB 1: TUJUAN PEMBELAJARAN & HERO -->
+        <section id="tab-tujuan" class="tab-content">
+            <!-- Hero Banner -->
+            <div class="relative overflow-hidden rounded-3xl glass-panel p-8 sm:p-12 mb-10 border border-slate-700/60 shadow-2xl">
+                <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-brand-600/20 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute top-0 right-1/4 w-60 h-60 bg-accent-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    <div class="lg:col-span-7 space-y-6">
+                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-300 text-xs font-semibold uppercase tracking-wider">
+                            <i class="fa-solid fa-microchip text-accent-400"></i> Kurikulum Merdeka - Fase D
+                        </div>
+                        <h1 class="heading-font text-3xl sm:text-5xl font-extrabold leading-tight tracking-tight">
+                            Analisis Data & Informasi <br>
+                            <span class="bg-clip-text text-transparent bg-gradient-to-r from-accent-400 via-indigo-300 to-purple-400">
+                                Berbasis Interaktif
+                            </span>
+                        </h1>
+                        <p class="text-slate-300 text-base sm:text-lg leading-relaxed">
+                            Selamat datang dalam media pembelajaran interaktif Informatika. Mari jelajahi konsep data vs informasi, jenis-jenis tipe data, konversi satuan penyimpanan digital, serta simulasi pembersihan dan analisis data nyata melalui 5 Misi Game seru!
+                        </p>
+                        
+                        <!-- Author Badge -->
+                        <div class="p-4 rounded-2xl bg-slate-900/80 border border-indigo-500/30 flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-500 to-accent-400 flex items-center justify-center text-white font-bold text-xl shadow-md">
+                                CML
+                            </div>
+                            <div>
+                                <p class="text-xs text-indigo-300 font-medium">Pengembang & Pengampu Materi:</p>
+                                <p class="text-base font-bold text-white">Christopher Michael Lauw, M.Kom</p>
+                                <p class="text-xs text-slate-400">Developed by Christopher Michael Lauw, M.Kom</p>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap gap-4 pt-2">
+                            <button onclick="switchTab('materi')" class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-brand-600 to-accent-600 hover:from-brand-500 hover:to-accent-500 font-semibold text-white shadow-lg shadow-brand-500/25 transition-all flex items-center gap-2">
+                                <i class="fa-solid fa-play"></i> Mulai Belajar Materi
+                            </button>
+                            <button onclick="switchTab('games')" class="px-6 py-3.5 rounded-xl bg-slate-800/90 border border-slate-700 hover:bg-slate-700 font-semibold text-slate-200 transition-all flex items-center gap-2">
+                                <i class="fa-solid fa-gamepad text-emerald-400"></i> Langsung Main Game
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-5 flex justify-center">
+                        <div class="relative w-full max-w-sm">
+                            <div class="w-full h-80 rounded-2xl bg-gradient-to-tr from-brand-900/60 to-slate-900/80 border border-indigo-500/30 p-6 flex flex-col justify-between shadow-2xl relative overflow-hidden backdrop-blur-sm">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs text-indigo-300 font-mono">DATA_HUB // PHASE_D</span>
+                                    <i class="fa-solid fa-database text-brand-400 text-2xl animate-pulse"></i>
+                                </div>
+                                <div class="space-y-4 my-auto">
+                                    <div class="flex items-center gap-3 bg-slate-800/80 p-3 rounded-xl border border-slate-700/50">
+                                        <i class="fa-solid fa-filter text-indigo-400 text-xl"></i>
+                                        <div>
+                                            <p class="text-xs text-slate-400">Raw Data Input</p>
+                                            <p class="text-sm font-semibold text-white">[36.5, "Jakarta", TRUE]</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-center text-brand-400">
+                                        <i class="fa-solid fa-arrow-down-long animate-bounce"></i>
+                                    </div>
+                                    <div class="flex items-center gap-3 bg-indigo-900/40 p-3 rounded-xl border border-brand-500/40">
+                                        <i class="fa-solid fa-chart-line text-emerald-400 text-xl"></i>
+                                        <div>
+                                            <p class="text-xs text-indigo-300">Meaningful Information</p>
+                                            <p class="text-sm font-bold text-emerald-300">Suhu Badan Andi Normal (36.5°C)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-[10px] text-slate-500">System Ready • Christopher Michael Lauw, M.Kom</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learning Objectives Cards (Capaian & Tujuan Pembelajaran) -->
+            <div class="mb-8">
+                <h2 class="heading-font text-2xl font-bold mb-6 flex items-center gap-3">
+                    <i class="fa-solid fa-bullseye text-brand-400"></i> Capaian & Tujuan Pembelajaran (Fase D)
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="glass-card p-6 rounded-2xl border border-slate-700">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-2xl mb-4">
+                            <i class="fa-solid fa-scale-balanced"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">1. Memahami Konsep Data & Informasi</h3>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            Siswa mampu membedakan secara kritis antara data mentah (raw data) dan informasi yang telah diproses sehingga bernilai untuk pengambilan keputusan.
+                        </p>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl border border-slate-700">
+                        <div class="w-12 h-12 rounded-xl bg-accent-500/20 text-accent-400 flex items-center justify-center text-2xl mb-4">
+                            <i class="fa-solid fa-hard-drive"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">2. Satuan & Tipe Data Digital</h3>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            Siswa memahami tipe data dasar (Integer, Float, String, Boolean) serta mampu mengonversi dan mengestimasi ukuran kapasitas penyimpanan digital (Bit s/d TB).
+                        </p>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl border border-slate-700">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl mb-4">
+                            <i class="fa-solid fa-broom-ball"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2">3. Pembersihan & Analisis Data</h3>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            Siswa mampu melakukan data cleaning (mengidentifikasi data corrupt/anomali) serta menganalisis tren data sederhana untuk menyimpulkan kasus kontekstual.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: MATERI LENGKAP INTERAKTIF -->
+        <section id="tab-materi" class="tab-content hidden space-y-10">
+            <!-- Header Materi -->
+            <div class="border-b border-slate-800 pb-6">
+                <h2 class="heading-font text-3xl font-extrabold text-white flex items-center gap-3">
+                    <i class="fa-solid fa-book-open text-brand-400"></i> Modul Pembelajaran Analisis Data
+                </h2>
+                <p class="text-slate-400 mt-2">Pelajari materi mendasar sebelum menaklukkan misi tantangan game!</p>
+            </div>
+
+            <!-- Sub-materi 1: Data vs Informasi -->
+            <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-700/80 space-y-6">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center font-bold text-white text-sm">1</span>
+                    <h3 class="heading-font text-2xl font-bold text-white">Data vs Informasi</h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800">
+                        <div class="flex items-center gap-3 text-amber-400 mb-3">
+                            <i class="fa-solid fa-cubes text-2xl"></i>
+                            <h4 class="text-xl font-bold">Data Mentah (Raw Data)</h4>
+                        </div>
+                        <p class="text-sm text-slate-300 leading-relaxed mb-4">
+                            Kumpulan fakta mentah, angka, atau simbol yang belum diolah dan belum memiliki makna kontekstual bagi pengguna.
+                        </p>
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 font-mono text-xs text-amber-300/90 space-y-1">
+                            <p>• Contoh 1: "36.8"</p>
+                            <p>• Contoh 2: "100, 85, 90, 75"</p>
+                            <p>• Contoh 3: "Budi, L, 15"</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800">
+                        <div class="flex items-center gap-3 text-emerald-400 mb-3">
+                            <i class="fa-solid fa-chart-pie text-2xl"></i>
+                            <h4 class="text-xl font-bold">Informasi (Information)</h4>
+                        </div>
+                        <p class="text-sm text-slate-300 leading-relaxed mb-4">
+                            Hasil pengolahan, pengorganisasian, dan analisis data yang memberikan makna, konteks, serta kegunaan nyata.
+                        </p>
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 font-mono text-xs text-emerald-300/90 space-y-1">
+                            <p>• Contoh 1: "Suhu tubuh Budi 36.8°C (Normal)"</p>
+                            <p>• Contoh 2: "Rata-rata Nilai Matematika Kelas VIII adalah 87.5"</p>
+                            <p>• Contoh 3: "Siswa Budi berusia 15 tahun berjenis kelamin Laki-laki"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sub-materi 2: Tipe Data Dasar -->
+            <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-700/80 space-y-6">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center font-bold text-white text-sm">2</span>
+                    <h3 class="heading-font text-2xl font-bold text-white">Tipe Data Komputer (Data Types)</h3>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Integer -->
+                    <div class="glass-card p-5 rounded-2xl border border-indigo-500/20">
+                        <div class="text-brand-400 font-mono font-bold text-sm mb-1">INTEGER (Bil. Bulat)</div>
+                        <p class="text-xs text-slate-300 mb-3">Angka bulat tanpa koma/desimal (positif, nol, atau negatif).</p>
+                        <div class="bg-slate-900 p-2.5 rounded-lg text-xs font-mono text-indigo-300">
+                            Ex: 25, 0, -12, 2024
+                        </div>
+                    </div>
+                    <!-- Float -->
+                    <div class="glass-card p-5 rounded-2xl border border-cyan-500/20">
+                        <div class="text-cyan-400 font-mono font-bold text-sm mb-1">FLOAT / REAL (Desimal)</div>
+                        <p class="text-xs text-slate-300 mb-3">Angka yang memiliki pecahan desimal atau tanda koma/titik.</p>
+                        <div class="bg-slate-900 p-2.5 rounded-lg text-xs font-mono text-cyan-300">
+                            Ex: 3.14, 87.5, -0.05
+                        </div>
+                    </div>
+                    <!-- String -->
+                    <div class="glass-card p-5 rounded-2xl border border-emerald-500/20">
+                        <div class="text-emerald-400 font-mono font-bold text-sm mb-1">STRING (Teks / Karakter)</div>
+                        <p class="text-xs text-slate-300 mb-3">Kumpulan huruf, angka, atau simbol dalam tanda petik.</p>
+                        <div class="bg-slate-900 p-2.5 rounded-lg text-xs font-mono text-emerald-300">
+                            Ex: "Informatika", "A"
+                        </div>
+                    </div>
+                    <!-- Boolean -->
+                    <div class="glass-card p-5 rounded-2xl border border-amber-500/20">
+                        <div class="text-amber-400 font-mono font-bold text-sm mb-1">BOOLEAN (Logika)</div>
+                        <p class="text-xs text-slate-300 mb-3">Tipe data logika yang hanya memiliki dua nilai kebenaran.</p>
+                        <div class="bg-slate-900 p-2.5 rounded-lg text-xs font-mono text-amber-300">
+                            Ex: TRUE (Benar) / FALSE (Salah)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sub-materi 3: Satuan & Interactive Converter -->
+            <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-700/80 space-y-6">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center font-bold text-white text-sm">3</span>
+                    <h3 class="heading-font text-2xl font-bold text-white">Satuan Kapasitas Data & Kalkulator Interaktif</h3>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    <!-- Unit Hierarchy -->
+                    <div class="lg:col-span-6 space-y-3">
+                        <h4 class="text-base font-semibold text-indigo-300">Hirarki Satuan Data:</h4>
+                        <div class="space-y-2 text-xs sm:text-sm font-mono">
+                            <div class="flex justify-between items-center bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+                                <span>1 Bit (Binary Digit)</span>
+                                <span class="text-slate-400">Nilai 0 atau 1</span>
+                            </div>
+                            <div class="flex justify-between items-center bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+                                <span>1 Byte (B)</span>
+                                <span class="text-slate-400">= 8 Bits (1 karakter teks)</span>
+                            </div>
+                            <div class="flex justify-between items-center bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+                                <span>1 Kilobyte (KB)</span>
+                                <span class="text-slate-400">= 1,024 Bytes</span>
+                            </div>
+                            <div class="flex justify-between items-center bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+                                <span>1 Megabyte (MB)</span>
+                                <span class="text-slate-400">= 1,024 KB (~1 lagu MP3)</span>
+                            </div>
+                            <div class="flex justify-between items-center bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+                                <span>1 Gigabyte (GB)</span>
+                                <span class="text-slate-400">= 1,024 MB (~1 Film HD)</span>
+                            </div>
+                            <div class="flex justify-between items-center bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+                                <span>1 Terabyte (TB)</span>
+                                <span class="text-slate-400">= 1,024 GB (Harddisk besar)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Converter Tool -->
+                    <div class="lg:col-span-6 bg-slate-900/90 p-6 rounded-2xl border border-indigo-500/30">
+                        <h4 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-calculator text-accent-400"></i> Simulator Konversi Satuan
+                        </h4>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Masukkan Nilai Satuan:</label>
+                                <input type="number" id="calcValue" value="1" min="0" oninput="convertUnits()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-white font-mono focus:outline-none focus:border-brand-500">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Pilih Satuan Asal:</label>
+                                <select id="calcUnit" onchange="convertUnits()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-brand-500">
+                                    <option value="KB">Kilobyte (KB)</option>
+                                    <option value="MB" selected>Megabyte (MB)</option>
+                                    <option value="GB">Gigabyte (GB)</option>
+                                    <option value="TB">Terabyte (TB)</option>
+                                </select>
+                            </div>
+
+                            <!-- Results display -->
+                            <div class="pt-4 border-t border-slate-800 space-y-2 font-mono text-xs">
+                                <div class="flex justify-between text-slate-300">
+                                    <span>Dalam Bytes (B):</span>
+                                    <span id="resBytes" class="text-accent-300 font-bold">1,048,576 B</span>
+                                </div>
+                                <div class="flex justify-between text-slate-300">
+                                    <span>Dalam Kilobytes (KB):</span>
+                                    <span id="resKB" class="text-emerald-300 font-bold">1,024 KB</span>
+                                </div>
+                                <div class="flex justify-between text-slate-300">
+                                    <span>Dalam Megabytes (MB):</span>
+                                    <span id="resMB" class="text-brand-300 font-bold">1 MB</span>
+                                </div>
+                                <div class="flex justify-between text-slate-300">
+                                    <span>Dalam Gigabytes (GB):</span>
+                                    <span id="resGB" class="text-purple-300 font-bold">0.000977 GB</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: GAMES (5-LEVEL INTERACTIVE MISSIONS) -->
+        <section id="tab-games" class="tab-content hidden space-y-8">
+            <!-- Game Banner Header -->
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-6">
+                <div>
+                    <h2 class="heading-font text-3xl font-extrabold text-white flex items-center gap-3">
+                        <i class="fa-solid fa-gamepad text-emerald-400"></i> Misi Game Analisis Data
+                    </h2>
+                    <p class="text-slate-400 text-sm mt-1">Selesaikan 5 level tantangan untuk mengumpulkan skor tertinggi!</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-sm">
+                        Total Skor Game: <strong id="gameScoreDisplay" class="text-emerald-400 text-lg ml-1">0</strong>/100
+                    </span>
+                </div>
+            </div>
+
+            <!-- Level Selector Tabs -->
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                <button onclick="loadGameLevel(1)" id="lvlBtn-1" class="lvl-tab p-3 rounded-xl bg-brand-600 text-white font-bold text-xs sm:text-sm text-center transition">
+                    Level 1 <br><span class="font-normal text-[10px] opacity-80">Data vs Informasi</span>
+                </button>
+                <button onclick="loadGameLevel(2)" id="lvlBtn-2" class="lvl-tab p-3 rounded-xl bg-slate-800 text-slate-400 font-bold text-xs sm:text-sm text-center hover:bg-slate-700 transition">
+                    Level 2 <br><span class="font-normal text-[10px] opacity-80">Data Types</span>
+                </button>
+                <button onclick="loadGameLevel(3)" id="lvlBtn-3" class="lvl-tab p-3 rounded-xl bg-slate-800 text-slate-400 font-bold text-xs sm:text-sm text-center hover:bg-slate-700 transition">
+                    Level 3 <br><span class="font-normal text-[10px] opacity-80">Storage Capacity</span>
+                </button>
+                <button onclick="loadGameLevel(4)" id="lvlBtn-4" class="lvl-tab p-3 rounded-xl bg-slate-800 text-slate-400 font-bold text-xs sm:text-sm text-center hover:bg-slate-700 transition">
+                    Level 4 <br><span class="font-normal text-[10px] opacity-80">Data Cleaning</span>
+                </button>
+                <button onclick="loadGameLevel(5)" id="lvlBtn-5" class="lvl-tab p-3 rounded-xl bg-slate-800 text-slate-400 font-bold text-xs sm:text-sm text-center hover:bg-slate-700 transition">
+                    Level 5 <br><span class="font-normal text-[10px] opacity-80">Data Detective</span>
+                </button>
+            </div>
+
+            <!-- GAME CONTAINER BOX -->
+            <div id="gameBox" class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-700/80 min-h-[420px] flex flex-col justify-between">
+                <!-- Level content dynamic injection -->
+                <div id="gameLevelContent" class="space-y-6">
+                    <!-- Dynamic level content goes here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: LKPD (LEMBAR KERJA PESERTA DIDIK) -->
+        <section id="tab-lkpd" class="tab-content hidden space-y-8">
+            <div class="border-b border-slate-800 pb-6 flex flex-wrap justify-between items-center gap-4">
+                <div>
+                    <h2 class="heading-font text-3xl font-extrabold text-white flex items-center gap-3">
+                        <i class="fa-solid fa-file-pen text-cyan-400"></i> Lembar Kerja Peserta Didik (LKPD)
+                    </h2>
+                    <p class="text-slate-400 text-sm mt-1">Studi Kasus Analisis Penjualan Koperasi Sekolah</p>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 px-4 py-2 rounded-xl">
+                    <span class="text-xs text-slate-400">Skor LKPD:</span>
+                    <span id="lkpdScoreText" class="text-xl font-bold text-cyan-400 ml-2">0/100</span>
+                </div>
+            </div>
+
+            <!-- Case Study Context Card -->
+            <div class="glass-panel p-6 rounded-2xl border border-slate-700 space-y-4">
+                <div class="flex items-center gap-3 text-brand-300">
+                    <i class="fa-solid fa-store text-2xl"></i>
+                    <h3 class="text-lg font-bold">Studi Kasus: Kantin Jujur "SMP Harapan Bangsa"</h3>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    Pengelola kantin sekolah mencatat transaksi mingguan penjualan produk untuk memantau stok dan keuntungan. Berikut adalah ringkasan sampel data penjualan minggu ini:
+                </p>
+
+                <!-- Data Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs sm:text-sm border-collapse">
+                        <thead>
+                            <tr class="bg-slate-900/90 text-indigo-300 border-b border-slate-700">
+                                <th class="p-3">ID Produk</th>
+                                <th class="p-3">Nama Produk</th>
+                                <th class="p-3">Kategori</th>
+                                <th class="p-3">Harga Satuan</th>
+                                <th class="p-3">Terjual (Unit)</th>
+                                <th class="p-3">Status Stok</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/60 font-mono text-slate-200">
+                            <tr>
+                                <td class="p-3">PRD-01</td>
+                                <td class="p-3 font-sans">Nasi Goreng Kantin</td>
+                                <td class="p-3 font-sans">Makanan Utama</td>
+                                <td class="p-3">Rp 10.000</td>
+                                <td class="p-3">120</td>
+                                <td class="p-3 font-sans text-emerald-400">Tersedia</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3">PRD-02</td>
+                                <td class="p-3 font-sans">Es Teh Manis</td>
+                                <td class="p-3 font-sans">Minuman</td>
+                                <td class="p-3">Rp 3.000</td>
+                                <td class="p-3">250</td>
+                                <td class="p-3 font-sans text-emerald-400">Tersedia</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3">PRD-03</td>
+                                <td class="p-3 font-sans">Roti Bakar Cokelat</td>
+                                <td class="p-3 font-sans">Camilan</td>
+                                <td class="p-3">Rp 5.000</td>
+                                <td class="p-3">80</td>
+                                <td class="p-3 font-sans text-amber-400">Hampir Habis</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3">PRD-04</td>
+                                <td class="p-3 font-sans">Keripik Singkong</td>
+                                <td class="p-3 font-sans">Camilan</td>
+                                <td class="p-3">Rp 2.000</td>
+                                <td class="p-3">150</td>
+                                <td class="p-3 font-sans text-emerald-400">Tersedia</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- LKPD Questions Form -->
+            <form id="lkpdForm" onsubmit="submitLKPD(event)" class="space-y-6">
+                <!-- Q1 -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-700 space-y-3">
+                    <p class="font-bold text-white text-sm sm:text-base">
+                        1. Manakah di bawah ini yang merupakan contoh <span class="text-amber-400">DATA MENTAH</span> dari tabel di atas?
+                    </p>
+                    <div class="space-y-2 text-xs sm:text-sm">
+                        <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                            <input type="radio" name="q1" value="A" class="text-brand-500 focus:ring-0">
+                            <span>A. "Pendapatan total Es Teh Manis minggu ini sebesar Rp 750.000"</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                            <input type="radio" name="q1" value="B" class="text-brand-500 focus:ring-0">
+                            <span>B. Angka mentah "250" tanpa keterangan atau judul tabel</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                            <input type="radio" name="q1" value="C" class="text-brand-500 focus:ring-0">
+                            <span>C. "Es Teh Manis merupakan produk terlaris di kantin"</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-700 space-y-3">
+                    <p class="font-bold text-white text-sm sm:text-base">
+                        2. Kolom <span class="text-cyan-400">"Terjual (Unit)"</span> mengandung angka 120, 250, 80, dan 150. Apakah tipe data yang paling tepat untuk kolom ini?
+                    </p>
+                    <div class="space-y-2 text-xs sm:text-sm">
+                        <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                            <input type="radio" name="q2" value="A" class="text-brand-500 focus:ring-0">
+                            <span>A. STRING</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                            <input type="radio" name="q2" value="B" class="text-brand-500 focus:ring-0">
+                            <span>B. BOOLEAN</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                            <input type="radio" name="q2" value="C" class="text-brand-500 focus:ring-0">
+                            <span>C. INTEGER</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Q3 -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-700 space-y-3">
+                    <p class="font-bold text-white text-sm sm:text-base">
+                        3. Berapakah total pendapatan kantin dari penjualan <span class="text-emerald-400">Nasi Goreng Kantin</span>?
+                    </p>
+                    <div class="space-y-2 text-xs sm:text-sm">
+                        <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                            <input type="radio" name="q3" value="A" class="text-brand-500 focus:ring-0">
+                            <span>A. Rp 1.200.000</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                            <input type="radio" name="q3" value="B" class="text-brand-500 focus:ring-0">
+                            <span>B. Rp 750.000</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                            <input type="radio" name="q3" value="C" class="text-brand-500 focus:ring-0">
+                            <span>C. Rp 120.000</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Q4 -->
+                <div class="glass-panel p-6 rounded-2xl border border-slate-700 space-y-3">
+                    <p class="font-bold text-white text-sm sm:text-base">
+                        4. Jika file tabel transaksi ini disimpan dalam format file spreadsheet Excel berukuran 2 MB, berapa Kilobyte (KB) ukuran file tersebut?
+                    </p>
+                    <div class="space-y-2 text-xs sm:text-sm">
+                        <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                            <input type="radio" name="q4" value="A" class="text-brand-500 focus:ring-0">
+                            <span>A. 1,000 KB</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                            <input type="radio" name="q4" value="B" class="text-brand-500 focus:ring-0">
+                            <span>B. 2,048 KB</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-800 cursor-pointer">
+                            <input type="radio" name="q4" value="C" class="text-brand-500 focus:ring-0">
+                            <span>C. 200 KB</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex justify-end">
+                    <button type="submit" class="px-8 py-3.5 rounded-xl bg-gradient-to-r from-cyan-600 to-brand-600 hover:from-cyan-500 hover:to-brand-500 text-white font-bold text-sm shadow-lg shadow-cyan-500/20 transition flex items-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> Kirim & Nilai LKPD
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- TAB 5: REFLEKSI DIRI -->
+        <section id="tab-refleksi" class="tab-content hidden space-y-8">
+            <div class="border-b border-slate-800 pb-6">
+                <h2 class="heading-font text-3xl font-extrabold text-white flex items-center gap-3">
+                    <i class="fa-solid fa-brain text-purple-400"></i> Refleksi Diri Peserta Didik
+                </h2>
+                <p class="text-slate-400 text-sm mt-1">Ungkapkan pengalaman dan tingkat pemahaman Anda setelah menyelesaikan aktivitas.</p>
+            </div>
+
+            <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-slate-700 space-y-8 max-w-3xl mx-auto">
+                <!-- Understanding rating -->
+                <div class="space-y-3">
+                    <label class="block font-bold text-white text-sm">1. Seberapa baik Anda memahami materi Analisis Data?</label>
+                    <div class="grid grid-cols-4 gap-3 text-center">
+                        <button type="button" onclick="selectEmoji('pemahaman', 1, this)" class="emoji-btn p-3 rounded-2xl bg-slate-900 border border-slate-800 hover:bg-slate-800 transition">
+                            <div class="text-3xl mb-1">😕</div>
+                            <div class="text-[11px] text-slate-400">Kurang</div>
+                        </button>
+                        <button type="button" onclick="selectEmoji('pemahaman', 2, this)" class="emoji-btn p-3 rounded-2xl bg-slate-900 border border-slate-800 hover:bg-slate-800 transition">
+                            <div class="text-3xl mb-1">🙂</div>
+                            <div class="text-[11px] text-slate-400">Cukup</div>
+                        </button>
+                        <button type="button" onclick="selectEmoji('pemahaman', 3, this)" class="emoji-btn p-3 rounded-2xl bg-slate-900 border border-slate-800 hover:bg-slate-800 transition">
+                            <div class="text-3xl mb-1">😃</div>
+                            <div class="text-[11px] text-slate-400">Baik</div>
+                        </button>
+                        <button type="button" onclick="selectEmoji('pemahaman', 4, this)" class="emoji-btn p-3 rounded-2xl bg-slate-900 border border-slate-800 hover:bg-slate-800 transition">
+                            <div class="text-3xl mb-1">🤩</div>
+                            <div class="text-[11px] text-slate-400">Sangat Baik</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Engagement rating -->
+                <div class="space-y-3">
+                    <label class="block font-bold text-white text-sm">2. Seberapa menarik Misi Game & Simulator interaktif ini?</label>
+                    <div class="grid grid-cols-4 gap-3 text-center">
+                        <button type="button" onclick="selectEmoji('kesenangan', 1, this)" class="emoji-btn p-3 rounded-2xl bg-slate-900 border border-slate-800 hover:bg-slate-800 transition">
+                            <div class="text-3xl mb-1">😐</div>
+                            <div class="text-[11px] text-slate-400">Biasa</div>
+                        </button>
+                        <button type="button" onclick="selectEmoji('kesenangan', 2, this)" class="emoji-btn p-3 rounded-2xl bg-slate-900 border border-slate-800 hover:bg-slate-800 transition">
+                            <div class="text-3xl mb-1">😊</div>
+                            <div class="text-[11px] text-slate-400">Menarik</div>
+                        </button>
+                        <button type="button" onclick="selectEmoji('kesenangan', 3, this)" class="emoji-btn p-3 rounded-2xl bg-slate-900 border border-slate-800 hover:bg-slate-800 transition">
+                            <div class="text-3xl mb-1">🔥</div>
+                            <div class="text-[11px] text-slate-400">Sangat Seru</div>
+                        </button>
+                        <button type="button" onclick="selectEmoji('kesenangan', 4, this)" class="emoji-btn p-3 rounded-2xl bg-slate-900 border border-slate-800 hover:bg-slate-800 transition">
+                            <div class="text-3xl mb-1">🚀</div>
+                            <div class="text-[11px] text-slate-400">Luar Biasa</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Open Feedback -->
+                <div class="space-y-3">
+                    <label class="block font-bold text-white text-sm">3. Hal baru atau kesan paling berharga yang Anda pelajari hari ini:</label>
+                    <textarea id="reflectionNote" rows="3" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-purple-500" placeholder="Tuliskan pendapat singkat Anda di sini..."></textarea>
+                </div>
+
+                <div class="pt-2">
+                    <button onclick="saveReflection()" class="w-full py-3.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm shadow-lg shadow-purple-600/30 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan Refleksi & Siapkan Sertifikat
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 6: FINISH & DYNAMIC CANVAS CERTIFICATE DOWNLOAD -->
+        <section id="tab-sertifikat" class="tab-content hidden space-y-8">
+            <div class="border-b border-slate-800 pb-6 text-center max-w-2xl mx-auto">
+                <span class="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold uppercase">
+                    Pencapaian Pembelajaran
+                </span>
+                <h2 class="heading-font text-3xl font-extrabold text-white mt-2">Sertifikat Kelulusan Modul</h2>
+                <p class="text-slate-400 text-sm mt-1">
+                    Sertifikat resmi ini mencakup nama, skor game, skor LKPD, serta pengesahan dari pengembang.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <!-- Canvas Certificate Live Preview Box -->
+                <div class="lg:col-span-8 flex flex-col items-center">
+                    <div class="w-full overflow-hidden rounded-2xl border border-amber-500/30 bg-slate-900 shadow-2xl p-2">
+                        <canvas id="certCanvas" width="1000" height="700" class="w-full h-auto rounded-xl shadow-lg"></canvas>
+                    </div>
+                </div>
+
+                <!-- Controls & Direct Download Options -->
+                <div class="lg:col-span-4 glass-panel p-6 rounded-2xl border border-slate-700 space-y-6">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-brand-400"></i> Informasi Sertifikat
+                    </h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">Nama Lengkap Siswa:</label>
+                            <input type="text" id="certNameInput" oninput="updateStudentName(this.value)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                        </div>
+
+                        <div class="bg-slate-950 p-4 rounded-xl space-y-2 text-xs border border-slate-800">
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Skor Game Mission:</span>
+                                <span id="certGameScore" class="font-bold text-emerald-400">0 / 100</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Skor LKPD Interaktif:</span>
+                                <span id="certLkpdScore" class="font-bold text-cyan-400">0 / 100</span>
+                            </div>
+                            <div class="flex justify-between border-t border-slate-800 pt-2 text-sm">
+                                <span class="text-slate-200 font-bold">Rata-rata Akhir:</span>
+                                <span id="certTotalScore" class="font-extrabold text-amber-400">0</span>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-indigo-950/40 rounded-xl border border-indigo-500/20 text-xs text-indigo-300">
+                            <i class="fa-solid fa-user-check text-accent-400 mr-1"></i> Disahkan oleh:<br>
+                            <strong class="text-white">Christopher Michael Lauw, M.Kom</strong>
+                        </div>
+
+                        <button onclick="downloadCertificate()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-download"></i> Unduh Sertifikat (PNG / Galeri)
+                        </button>
+
+                        <button onclick="window.print()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs border border-slate-700 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-print"></i> Cetak / Simpan PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-slate-800/80 bg-slate-950 py-8 mt-16 text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+            <div>
+                <p class="font-semibold text-slate-400">DataVibe - Media Pembelajaran Informatika Fase D</p>
+                <p class="text-[11px] text-slate-500 mt-0.5">Developed by Christopher Michael Lauw, M.Kom</p>
+            </div>
+            <p>© 2026 Christopher Michael Lauw, M.Kom • Hak Cipta Dilindungi</p>
+        </div>
+    </footer>
+
+
+    <!-- JAVASCRIPT LOGIC & AUDIO SYNTHESIZER -->
+    <script>
+        // GLOBAL APP STATE
+        const appState = {
+            studentName: "Peserta Didik Informatika",
+            gameScores: { lvl1: 0, lvl2: 0, lvl3: 0, lvl4: 0, lvl5: 0 },
+            lkpdScore: 0,
+            reflection: { pemahaman: 3, kesenangan: 4, note: "" },
+            currentLevel: 1,
+            audioEnabled: true
+        };
+
+        // WEB AUDIO API SYNTHESIZER
+        class SoundSystem {
+            constructor() {
+                this.ctx = null;
+            }
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+            playClick() {
+                if (!appState.audioEnabled) return;
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.05);
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.05);
+            }
+            playSuccess() {
+                if (!appState.audioEnabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+                osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(now + 0.3);
+            }
+            playError() {
+                if (!appState.audioEnabled) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.setValueAtTime(180, now + 0.1);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(now + 0.25);
+            }
+            playFanfare() {
+                if (!appState.audioEnabled) return;
+                this.init();
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.2, this.ctx.currentTime + idx * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + idx * 0.1 + 0.3);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(this.ctx.currentTime + idx * 0.1);
+                    osc.stop(this.ctx.currentTime + idx * 0.1 + 0.3);
+                });
+            }
+        }
+        const sfx = new SoundSystem();
+
+        function toggleAudio() {
+            appState.audioEnabled = !appState.audioEnabled;
+            const icon = document.getElementById('audioIcon');
+            if (appState.audioEnabled) {
+                icon.className = 'fa-solid fa-volume-high text-brand-400';
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-slate-500';
+            }
+        }
+
+        // TAB SWITCHING LOGIC
+        function switchTab(tabId) {
+            sfx.playClick();
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById('tab-' + tabId);
+            if (target) target.classList.remove('hidden');
+
+            // Update navbar styling
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-600', 'text-white');
+                btn.classList.add('text-indigo-300');
+            });
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-brand-600', 'text-white');
+                activeBtn.classList.remove('text-indigo-300');
+            }
+
+            if (tabId === 'games') {
+                loadGameLevel(appState.currentLevel);
+            } else if (tabId === 'sertifikat') {
+                renderCertificateCanvas();
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        function updateStudentName(val) {
+            appState.studentName = val || "Peserta Didik Informatika";
+            document.getElementById('globalStudentName').value = appState.studentName;
+            document.getElementById('certNameInput').value = appState.studentName;
+            renderCertificateCanvas();
+        }
+
+        function calculateTotalGameScore() {
+            const total = appState.gameScores.lvl1 + appState.gameScores.lvl2 + appState.gameScores.lvl3 + appState.gameScores.lvl4 + appState.gameScores.lvl5;
+            document.getElementById('globalGameScore').innerText = total;
+            document.getElementById('gameScoreDisplay').innerText = total;
+            document.getElementById('certGameScore').innerText = total + " / 100";
+            return total;
+        }
+
+        // UNIT CONVERTER LOGIC
+        function convertUnits() {
+            const val = parseFloat(document.getElementById('calcValue').value) || 0;
+            const unit = document.getElementById('calcUnit').value;
+
+            let bytes = 0;
+            if (unit === 'KB') bytes = val * 1024;
+            else if (unit === 'MB') bytes = val * 1024 * 1024;
+            else if (unit === 'GB') bytes = val * 1024 * 1024 * 1024;
+            else if (unit === 'TB') bytes = val * 1024 * 1024 * 1024 * 1024;
+
+            document.getElementById('resBytes').innerText = bytes.toLocaleString('id-ID') + ' B';
+            document.getElementById('resKB').innerText = (bytes / 1024).toLocaleString('id-ID', {maximumFractionDigits: 2}) + ' KB';
+            document.getElementById('resMB').innerText = (bytes / (1024*1024)).toLocaleString('id-ID', {maximumFractionDigits: 4}) + ' MB';
+            document.getElementById('resGB').innerText = (bytes / (1024*1024*1024)).toLocaleString('id-ID', {maximumFractionDigits: 6}) + ' GB';
+        }
+
+        // ==========================================
+        // GAME LEVELS LOGIC (5 MISSIONS)
+        // ==========================================
+        function loadGameLevel(lvl) {
+            appState.currentLevel = lvl;
+            sfx.playClick();
+
+            // Update level tab buttons
+            for (let i = 1; i <= 5; i++) {
+                const btn = document.getElementById('lvlBtn-' + i);
+                if (i === lvl) {
+                    btn.className = "lvl-tab p-3 rounded-xl bg-brand-600 text-white font-bold text-xs sm:text-sm text-center transition shadow-lg shadow-brand-500/30";
+                } else {
+                    btn.className = "lvl-tab p-3 rounded-xl bg-slate-800 text-slate-400 font-bold text-xs sm:text-sm text-center hover:bg-slate-700 transition";
+                }
+            }
+
+            const box = document.getElementById('gameLevelContent');
+
+            if (lvl === 1) {
+                // LEVEL 1: Sorting Raw Data vs Information
+                box.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                <span class="px-2.5 py-1 bg-brand-500/20 text-brand-300 rounded-lg text-xs">Misi 1</span> Klasifikasi Data vs Informasi
+                            </h3>
+                            <span class="text-xs text-slate-400">Skor Misi: <strong id="lvl1Score" class="text-emerald-400 font-bold">${appState.gameScores.lvl1}</strong>/20</span>
+                        </div>
+                        <p class="text-sm text-slate-300">Tentukan apakah item di bawah ini merupakan <strong>Data Mentah</strong> atau <strong>Informasi</strong>!</p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2" id="lvl1Cards">
+                            <!-- Cards inserted via JS -->
+                        </div>
+                    </div>
+                `;
+                initLevel1();
+            } else if (lvl === 2) {
+                // LEVEL 2: Data Type Match Speed Game
+                box.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                <span class="px-2.5 py-1 bg-brand-500/20 text-brand-300 rounded-lg text-xs">Misi 2</span> Data Type Matcher
+                            </h3>
+                            <span class="text-xs text-slate-400">Skor Misi: <strong id="lvl2Score" class="text-emerald-400 font-bold">${appState.gameScores.lvl2}</strong>/20</span>
+                        </div>
+                        <p class="text-sm text-slate-300">Cocokkan item nilai data di bawah dengan kategori Tipe Data yang sesuai!</p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2" id="lvl2Cards">
+                            <!-- Cards inserted via JS -->
+                        </div>
+                    </div>
+                `;
+                initLevel2();
+            } else if (lvl === 3) {
+                // LEVEL 3: Storage Capacity Visualizer Game
+                box.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                <span class="px-2.5 py-1 bg-brand-500/20 text-brand-300 rounded-lg text-xs">Misi 3</span> Storage Capacity Puzzle
+                            </h3>
+                            <span class="text-xs text-slate-400">Skor Misi: <strong id="lvl3Score" class="text-emerald-400 font-bold">${appState.gameScores.lvl3}</strong>/20</span>
+                        </div>
+                        <p class="text-sm text-slate-300">Urutkan satuan penyimpanan digital berikut dari ukuran <strong>Terkecil (Top)</strong> ke <strong>Terbesar (Bottom)</strong>!</p>
+                        
+                        <div class="space-y-2 max-w-md mx-auto pt-2" id="lvl3List">
+                            <!-- Dynamic list -->
+                        </div>
+                        <div class="text-center pt-3">
+                            <button onclick="checkLevel3()" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-sm shadow-md transition">
+                                Verifikasi Urutan Kapasitas
+                            </button>
+                        </div>
+                    </div>
+                `;
+                initLevel3();
+            } else if (lvl === 4) {
+                // LEVEL 4: Data Security / Cleaning Mission
+                box.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                <span class="px-2.5 py-1 bg-brand-500/20 text-brand-300 rounded-lg text-xs">Misi 4</span> Data Cleaning Agent
+                            </h3>
+                            <span class="text-xs text-slate-400">Skor Misi: <strong id="lvl4Score" class="text-emerald-400 font-bold">${appState.gameScores.lvl4}</strong>/20</span>
+                        </div>
+                        <p class="text-sm text-slate-300">Temukan dan perbaiki 3 baris data yang cacat/rusak (error / invalid) di dalam tabel di bawah!</p>
+                        
+                        <div id="lvl4Table" class="overflow-x-auto pt-2">
+                            <!-- Table injected -->
+                        </div>
+                    </div>
+                `;
+                initLevel4();
+            } else if (lvl === 5) {
+                // LEVEL 5: Final Detective Master Analysis Assembly
+                box.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                <span class="px-2.5 py-1 bg-brand-500/20 text-brand-300 rounded-lg text-xs">Misi 5</span> Master Data Detective
+                            </h3>
+                            <span class="text-xs text-slate-400">Skor Misi: <strong id="lvl5Score" class="text-emerald-400 font-bold">${appState.gameScores.lvl5}</strong>/20</span>
+                        </div>
+                        <p class="text-sm text-slate-300">Analisislah tren data statistik penjualan barang di Koperasi Sekolah berikut untuk memecahkan pertanyaan detektif!</p>
+                        
+                        <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-4">
+                            <div class="h-40 flex items-end justify-between gap-2 px-4 pt-6 border-b border-slate-700 font-mono text-xs text-center">
+                                <div class="w-1/5 flex flex-col items-center gap-1">
+                                    <span class="text-indigo-300">120</span>
+                                    <div class="w-full bg-brand-500 rounded-t-lg h-24"></div>
+                                    <span class="text-slate-400">Senin</span>
+                                </div>
+                                <div class="w-1/5 flex flex-col items-center gap-1">
+                                    <span class="text-indigo-300">180</span>
+                                    <div class="w-full bg-brand-500 rounded-t-lg h-32"></div>
+                                    <span class="text-slate-400">Selasa</span>
+                                </div>
+                                <div class="w-1/5 flex flex-col items-center gap-1">
+                                    <span class="text-indigo-300">240</span>
+                                    <div class="w-full bg-accent-400 rounded-t-lg h-36"></div>
+                                    <span class="text-slate-400">Rabu</span>
+                                </div>
+                                <div class="w-1/5 flex flex-col items-center gap-1">
+                                    <span class="text-indigo-300">150</span>
+                                    <div class="w-full bg-brand-500 rounded-t-lg h-28"></div>
+                                    <span class="text-slate-400">Kamis</span>
+                                </div>
+                                <div class="w-1/5 flex flex-col items-center gap-1">
+                                    <span class="text-indigo-300">300</span>
+                                    <div class="w-full bg-emerald-400 rounded-t-lg h-40"></div>
+                                    <span class="text-slate-400">Jumat</span>
+                                </div>
+                            </div>
+
+                            <div id="lvl5Questions" class="space-y-4 pt-2">
+                                <!-- Detective Qs -->
+                            </div>
+                        </div>
+                    </div>
+                `;
+                initLevel5();
+            }
+        }
+
+        // --- LEVEL 1 IMPLEMENTATION ---
+        const lvl1Items = [
+            { id: 1, text: '36.5', type: 'DATA' },
+            { id: 2, text: 'Suhu tubuh Budi adalah 36.5°C (Kondisi Sehat)', type: 'INFO' },
+            { id: 3, text: '100, 95, 88, 92', type: 'DATA' },
+            { id: 4, text: 'Rata-rata Nilai Ujian Informatika Kelas 8 adalah 93.75', type: 'INFO' }
+        ];
+
+        function initLevel1() {
+            const container = document.getElementById('lvl1Cards');
+            container.innerHTML = lvl1Items.map(item => `
+                <div id="l1-item-${item.id}" class="glass-card p-4 rounded-2xl border border-slate-700 flex flex-col justify-between space-y-3">
+                    <p class="font-mono text-sm text-slate-200">"${item.text}"</p>
+                    <div class="flex gap-2">
+                        <button onclick="answerLvl1(${item.id}, 'DATA')" class="flex-1 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs font-bold transition">
+                            Data Mentah
+                        </button>
+                        <button onclick="answerLvl1(${item.id}, 'INFO')" class="flex-1 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 text-xs font-bold transition">
+                            Informasi
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function answerLvl1(itemId, choice) {
+            const item = lvl1Items.find(i => i.id === itemId);
+            const card = document.getElementById(`l1-item-${itemId}`);
+            if (!item || !card || card.dataset.answered) return;
+
+            card.dataset.answered = "true";
+            if (choice === item.type) {
+                sfx.playSuccess();
+                card.className = "p-4 rounded-2xl bg-emerald-950/60 border border-emerald-500 flex flex-col justify-between space-y-3";
+                appState.gameScores.lvl1 += 5;
+            } else {
+                sfx.playError();
+                card.className = "p-4 rounded-2xl bg-rose-950/60 border border-rose-500 flex flex-col justify-between space-y-3";
+            }
+            document.getElementById('lvl1Score').innerText = appState.gameScores.lvl1;
+            calculateTotalGameScore();
+        }
+
+        // --- LEVEL 2 IMPLEMENTATION ---
+        const lvl2Items = [
+            { id: 1, val: '"Informatika SMP"', correct: 'STRING' },
+            { id: 2, val: '2026', correct: 'INTEGER' },
+            { id: 3, val: '3.14159', correct: 'FLOAT' },
+            { id: 4, val: 'TRUE', correct: 'BOOLEAN' }
+        ];
+
+        function initLevel2() {
+            const container = document.getElementById('lvl2Cards');
+            container.innerHTML = lvl2Items.map(item => `
+                <div id="l2-item-${item.id}" class="glass-card p-4 rounded-2xl border border-slate-700 space-y-3">
+                    <p class="font-mono text-center text-lg text-cyan-300 font-bold bg-slate-900/90 py-2 rounded-xl border border-slate-800">${item.val}</p>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <button onclick="answerLvl2(${item.id}, 'INTEGER')" class="py-1.5 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/40 text-indigo-300 font-semibold border border-indigo-500/30">INTEGER</button>
+                        <button onclick="answerLvl2(${item.id}, 'FLOAT')" class="py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/40 text-cyan-300 font-semibold border border-cyan-500/30">FLOAT</button>
+                        <button onclick="answerLvl2(${item.id}, 'STRING')" class="py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-300 font-semibold border border-emerald-500/30">STRING</button>
+                        <button onclick="answerLvl2(${item.id}, 'BOOLEAN')" class="py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 font-semibold border border-amber-500/30">BOOLEAN</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function answerLvl2(itemId, choice) {
+            const item = lvl2Items.find(i => i.id === itemId);
+            const card = document.getElementById(`l2-item-${itemId}`);
+            if (!item || !card || card.dataset.answered) return;
+
+            card.dataset.answered = "true";
+            if (choice === item.correct) {
+                sfx.playSuccess();
+                card.className = "p-4 rounded-2xl bg-emerald-950/60 border border-emerald-500 space-y-3";
+                appState.gameScores.lvl2 += 5;
+            } else {
+                sfx.playError();
+                card.className = "p-4 rounded-2xl bg-rose-950/60 border border-rose-500 space-y-3";
+            }
+            document.getElementById('lvl2Score').innerText = appState.gameScores.lvl2;
+            calculateTotalGameScore();
+        }
+
+        // --- LEVEL 3 IMPLEMENTATION ---
+        let lvl3Order = ['Gigabyte (GB)', 'Byte (B)', 'Terabyte (TB)', 'Kilobyte (KB)'];
+        const correctLvl3Order = ['Byte (B)', 'Kilobyte (KB)', 'Gigabyte (GB)', 'Terabyte (TB)'];
+
+        function initLevel3() {
+            renderLevel3List();
+        }
+
+        function renderLevel3List() {
+            const list = document.getElementById('lvl3List');
+            list.innerHTML = lvl3Order.map((item, idx) => `
+                <div class="flex items-center justify-between p-3.5 rounded-xl bg-slate-900 border border-slate-700 text-sm font-mono text-indigo-200">
+                    <span class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-brand-600 text-white flex items-center justify-center text-xs font-bold">${idx + 1}</span>
+                        ${item}
+                    </span>
+                    <div class="flex gap-1">
+                        <button onclick="moveLvl3(${idx}, -1)" ${idx === 0 ? 'disabled class="opacity-30"' : 'class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs"'}><i class="fa-solid fa-arrow-up"></i></button>
+                        <button onclick="moveLvl3(${idx}, 1)" ${idx === lvl3Order.length - 1 ? 'disabled class="opacity-30"' : 'class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs"'}><i class="fa-solid fa-arrow-down"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function moveLvl3(idx, dir) {
+            sfx.playClick();
+            const temp = lvl3Order[idx];
+            lvl3Order[idx] = lvl3Order[idx + dir];
+            lvl3Order[idx + dir] = temp;
+            renderLevel3List();
+        }
+
+        function checkLevel3() {
+            const isCorrect = JSON.stringify(lvl3Order) === JSON.stringify(correctLvl3Order);
+            if (isCorrect) {
+                sfx.playFanfare();
+                confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+                appState.gameScores.lvl3 = 20;
+                alert("Luar biasa! Urutan kapasitas penyimpanan Anda 100% Benar!");
+            } else {
+                sfx.playError();
+                appState.gameScores.lvl3 = 5;
+                alert("Urutan masih kurang tepat. Ingat: Byte < Kilobyte < Gigabyte < Terabyte!");
+            }
+            document.getElementById('lvl3Score').innerText = appState.gameScores.lvl3;
+            calculateTotalGameScore();
+        }
+
+        // --- LEVEL 4 IMPLEMENTATION ---
+        const lvl4Rows = [
+            { id: 1, name: 'Budi Santoso', age: '14', status: 'Valid', isError: false },
+            { id: 2, name: 'Siti Rahma', age: '-5', status: 'Invalid (Umur Negatif)', isError: true },
+            { id: 3, name: 'Ahmad Faisal', age: '15', status: 'Valid', isError: false },
+            { id: 4, name: 'Dewi Lestari', age: '250', status: 'Invalid (Anomali Umur)', isError: true },
+            { id: 5, name: 'Eko Prasetyo', age: 'ERR_NULL', status: 'Invalid (Corrupt Value)', isError: true }
+        ];
+
+        function initLevel4() {
+            const container = document.getElementById('lvl4Table');
+            container.innerHTML = `
+                <table class="w-full text-left text-xs sm:text-sm border-collapse">
+                    <thead>
+                        <tr class="bg-slate-900 text-indigo-300 border-b border-slate-800">
+                            <th class="p-3">ID</th>
+                            <th class="p-3">Nama Siswa</th>
+                            <th class="p-3">Umur</th>
+                            <th class="p-3">Status Pembersihan</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800 font-mono">
+                        ${lvl4Rows.map(row => `
+                            <tr id="l4-row-${row.id}" class="hover:bg-slate-800/50 cursor-pointer transition" onclick="clickLvl4Row(${row.id})">
+                                <td class="p-3 text-slate-400">#0${row.id}</td>
+                                <td class="p-3 font-sans font-medium text-white">${row.name}</td>
+                                <td class="p-3 text-cyan-300">${row.age}</td>
+                                <td class="p-3 font-sans text-slate-400">Klik untuk periksa data</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function clickLvl4Row(rowId) {
+            const row = lvl4Rows.find(r => r.id === rowId);
+            const tr = document.getElementById(`l4-row-${rowId}`);
+            if (!row || !tr || tr.dataset.cleaned) return;
+
+            tr.dataset.cleaned = "true";
+            if (row.isError) {
+                sfx.playSuccess();
+                tr.className = "bg-emerald-950/60 text-emerald-300 font-mono";
+                tr.children[3].innerText = "✓ BERHASIL DIBERSIHKAN";
+                appState.gameScores.lvl4 += 6.6;
+                if (appState.gameScores.lvl4 > 19) appState.gameScores.lvl4 = 20;
+            } else {
+                sfx.playError();
+                tr.className = "bg-rose-950/60 text-rose-300 font-mono";
+                tr.children[3].innerText = "❌ Data ini sudah valid!";
+            }
+            document.getElementById('lvl4Score').innerText = Math.round(appState.gameScores.lvl4);
+            calculateTotalGameScore();
+        }
+
+        // --- LEVEL 5 IMPLEMENTATION ---
+        function initLevel5() {
+            const container = document.getElementById('lvl5Questions');
+            container.innerHTML = `
+                <div class="space-y-3">
+                    <p class="text-xs sm:text-sm font-semibold text-white">1. Pada hari apa penjualan produk koperasi mencapai puncak tertinggi?</p>
+                    <div class="flex gap-2 text-xs">
+                        <button onclick="answerLvl5(1, 'Jumat')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200">Jumat</button>
+                        <button onclick="answerLvl5(1, 'Rabu')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200">Rabu</button>
+                        <button onclick="answerLvl5(1, 'Selasa')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200">Selasa</button>
+                    </div>
+                </div>
+
+                <div class="space-y-3 pt-2">
+                    <p class="text-xs sm:text-sm font-semibold text-white">2. Berapakah total akumulasi unit barang yang terjual dari hari Senin hingga Jumat?</p>
+                    <div class="flex gap-2 text-xs">
+                        <button onclick="answerLvl5(2, '990')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200">990 Unit</button>
+                        <button onclick="answerLvl5(2, '850')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200">850 Unit</button>
+                        <button onclick="answerLvl5(2, '1000')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200">1000 Unit</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        let lvl5Answers = { q1: false, q2: false };
+        function answerLvl5(qNum, choice) {
+            if (qNum === 1 && choice === 'Jumat') {
+                sfx.playSuccess();
+                lvl5Answers.q1 = true;
+            } else if (qNum === 2 && choice === '990') {
+                sfx.playSuccess();
+                lvl5Answers.q2 = true;
+            } else {
+                sfx.playError();
+            }
+
+            let score = 0;
+            if (lvl5Answers.q1) score += 10;
+            if (lvl5Answers.q2) score += 10;
+            appState.gameScores.lvl5 = score;
+
+            document.getElementById('lvl5Score').innerText = appState.gameScores.lvl5;
+            calculateTotalGameScore();
+
+            if (score === 20) {
+                sfx.playFanfare();
+                confetti({ particleCount: 80, spread: 80, origin: { y: 0.6 } });
+            }
+        }
+
+        // ==========================================
+        // LKPD SUBMISSION & AUTO-GRADING
+        // ==========================================
+        function submitLKPD(event) {
+            event.preventDefault();
+            sfx.playClick();
+
+            const form = event.target;
+            const q1 = form.q1.value;
+            const q2 = form.q2.value;
+            const q3 = form.q3.value;
+            const q4 = form.q4.value;
+
+            let score = 0;
+            if (q1 === 'B') score += 25;
+            if (q2 === 'C') score += 25;
+            if (q3 === 'A') score += 25;
+            if (q4 === 'B') score += 25;
+
+            appState.lkpdScore = score;
+            document.getElementById('globalLkpdScore').innerText = score;
+            document.getElementById('lkpdScoreText').innerText = score + " / 100";
+            document.getElementById('certLkpdScore').innerText = score + " / 100";
+
+            if (score >= 75) {
+                sfx.playFanfare();
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                alert(`Selamat! Anda lulus LKPD dengan Skor: ${score}/100`);
+            } else {
+                sfx.playError();
+                alert(`Skor LKPD Anda: ${score}/100. Pelajari kembali materi dan coba lagi!`);
+            }
+        }
+
+        // ==========================================
+        // REFLECTION SYSTEM
+        // ==========================================
+        function selectEmoji(category, val, btn) {
+            sfx.playClick();
+            appState.reflection[category] = val;
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.emoji-btn').forEach(b => {
+                b.classList.remove('border-brand-500', 'bg-brand-500/20');
+                b.classList.add('border-slate-800', 'bg-slate-900');
+            });
+            btn.classList.add('border-brand-500', 'bg-brand-500/20');
+            btn.classList.remove('border-slate-800', 'bg-slate-900');
+        }
+
+        function saveReflection() {
+            sfx.playSuccess();
+            appState.reflection.note = document.getElementById('reflectionNote').value;
+            alert("Refleksi diri Anda berhasil disimpan! Mari buka sertifikat Anda.");
+            switchTab('sertifikat');
+        }
+
+        // ==========================================
+        // DYNAMIC HTML5 CANVAS CERTIFICATE GENERATOR
+        // ==========================================
+        function renderCertificateCanvas() {
+            const canvas = document.getElementById('certCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            const totalGame = calculateTotalGameScore();
+            const totalLkpd = appState.lkpdScore;
+            const finalAvg = Math.round((totalGame + totalLkpd) / 2);
+
+            document.getElementById('certTotalScore').innerText = finalAvg;
+
+            // Background fill
+            ctx.fillStyle = "#0f172a";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Outer Golden Border
+            ctx.strokeStyle = "#f59e0b";
+            ctx.lineWidth = 8;
+            ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+
+            // Inner Accent Border
+            ctx.strokeStyle = "#6366f1";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(32, 32, canvas.width - 64, canvas.height - 64);
+
+            // Header Banner
+            ctx.fillStyle = "#6366f1";
+            ctx.font = "bold 22px 'Outfit', sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText("MODUL PEMBELAJARAN INFORMATIKA FASE D", canvas.width / 2, 90);
+
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "extrabold 36px 'Outfit', sans-serif";
+            ctx.fillText("SERTIFIKAT KELULUSAN", canvas.width / 2, 145);
+
+            ctx.fillStyle = "#94a3b8";
+            ctx.font = "16px 'Inter', sans-serif";
+            ctx.fillText("Diberikan sebagai penghargaan atas penyelesaian modul Analisis Data kepada:", canvas.width / 2, 185);
+
+            // Student Name Highlight
+            ctx.fillStyle = "#38bdf8";
+            ctx.font = "bold 38px 'Outfit', sans-serif";
+            ctx.fillText(appState.studentName || "Peserta Didik Informatika", canvas.width / 2, 250);
+
+            // Divider Line
+            ctx.strokeStyle = "#334155";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(200, 280);
+            ctx.lineTo(800, 280);
+            ctx.stroke();
+
+            // Scores Summary Box
+            ctx.fillStyle = "#1e293b";
+            ctx.roundRect(180, 310, 640, 140, 16);
+            ctx.fill();
+            ctx.strokeStyle = "#475569";
+            ctx.stroke();
+
+            ctx.fillStyle = "#cbd5e1";
+            ctx.font = "15px 'Inter', sans-serif";
+            ctx.fillText("SKOR PERFORMA PEMBELAJARAN", canvas.width / 2, 340);
+
+            ctx.font = "bold 18px 'Inter', sans-serif";
+            ctx.fillStyle = "#34d399";
+            ctx.fillText(`Misi Game: ${totalGame}/100`, canvas.width / 2 - 180, 390);
+
+            ctx.fillStyle = "#22d3ee";
+            ctx.fillText(`LKPD Interaktif: ${totalLkpd}/100`, canvas.width / 2, 390);
+
+            ctx.fillStyle = "#fbbf24";
+            ctx.fillText(`Nilai Akhir: ${finalAvg}`, canvas.width / 2 + 180, 390);
+
+            // Reflection Quote Snippet
+            if (appState.reflection.note) {
+                ctx.fillStyle = "#94a3b8";
+                ctx.font = "italic 13px 'Inter', sans-serif";
+                ctx.fillText(`Catatan Refleksi: "${appState.reflection.note.substring(0, 60)}..."`, canvas.width / 2, 480);
+            }
+
+            // Signatures & Developer Credit
+            ctx.textAlign = "left";
+            ctx.fillStyle = "#94a3b8";
+            ctx.font = "12px 'Inter', sans-serif";
+            ctx.fillText("Tanggal Terbit: 26 Oktober 2026", 80, 580);
+            ctx.fillText("Status: VERIFIED DIGITAL CERTIFICATE", 80, 605);
+
+            // Developer Signature Block (Prominent Credit)
+            ctx.textAlign = "right";
+            ctx.fillStyle = "#cbd5e1";
+            ctx.font = "13px 'Inter', sans-serif";
+            ctx.fillText("Pengembang & Pengampu Materi:", canvas.width - 80, 560);
+
+            ctx.fillStyle = "#38bdf8";
+            ctx.font = "bold 18px 'Outfit', sans-serif";
+            ctx.fillText("Christopher Michael Lauw, M.Kom", canvas.width - 80, 590);
+
+            ctx.fillStyle = "#64748b";
+            ctx.font = "11px 'Inter', sans-serif";
+            ctx.fillText("Developed by Christopher Michael Lauw, M.Kom", canvas.width - 80, 615);
+        }
+
+        // DIRECT GALLERY DOWNLOAD FUNCTION
+        function downloadCertificate() {
+            sfx.playSuccess();
+            const canvas = document.getElementById('certCanvas');
+            if (!canvas) return;
+
+            const image = canvas.toDataURL("image/png");
+            const link = document.createElement('a');
+            const sanitizedName = (appState.studentName || 'Siswa').replace(/\s+/g, '_');
+            link.download = `Sertifikat_Informatika_${sanitizedName}.png`;
+            link.href = image;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // INITIALIZATION ON LOAD
+        window.onload = function() {
+            convertUnits();
+            calculateTotalGameScore();
+            renderCertificateCanvas();
+        };
+    </script>
+</body>
+</html>
